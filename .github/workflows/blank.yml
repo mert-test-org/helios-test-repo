@@ -1,0 +1,138 @@
+name: New Deploy Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: "Which branch to deploy"
+        required: true
+        type: string
+      commit_sha:
+        description: 'Commit SHA to deploy'
+        required: false
+        type: string
+      environment_name:
+        description: "Which environment to deploy (must match GitHub environment name)"
+        required: true
+        type: string
+      triggered_by:
+        description: "Username that triggered deployment"
+        required: false
+        type: string
+
+# Ensures only one deployment runs at a time per environment
+concurrency: ${{ github.event.inputs.environment_name }}
+
+env:
+  CI: true
+
+jobs:
+  # Job 1: Validate and log deployment inputs
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log Deployment Information
+        run: |
+          echo "========================================"
+          echo "🚀 Helios Deployment Started"
+          echo "========================================"
+          echo "Branch: ${{ github.event.inputs.branch_name }}"
+          echo "Commit SHA: ${{ github.event.inputs.commit_sha || 'latest' }}"
+          echo "Environment: ${{ github.event.inputs.environment_name }}"
+          echo "Triggered by: ${{ github.event.inputs.triggered_by || 'Unknown' }}"
+          echo "Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "========================================"
+
+  # Job 2: Simulate build process
+  build:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch_name }}
+          
+      - name: Simulate Build Process
+        run: |
+          echo "📦 Building application..."
+          echo "Branch: ${{ github.event.inputs.branch_name }}"
+          sleep 10
+          echo "✅ Build completed successfully!"
+          
+      - name: Upload Build Artifact (Simulated)
+        run: |
+          echo "📤 Uploading build artifacts..."
+          mkdir -p build
+          echo "Build from ${{ github.event.inputs.branch_name }} at $(date)" > build/info.txt
+          echo "✅ Artifacts uploaded!"
+
+  # Job 3: Run tests (optional but demonstrates multi-stage pipeline)
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch_name }}
+          
+      - name: Run Tests
+        run: |
+          echo "🧪 Running tests..."
+          sleep 5
+          echo "✅ All tests passed!"
+
+  # Job 4: Deploy to the specified environment
+  deploy:
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    # CRITICAL: This links the workflow to the GitHub Environment
+    environment:
+      name: ${{ github.event.inputs.environment_name }}
+      url: https://${{ github.event.inputs.environment_name }}.example.com
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch_name }}
+      
+      - name: Pre-deployment Check
+        run: |
+          echo "🔍 Pre-deployment validation..."
+          echo "Target environment: ${{ github.event.inputs.environment_name }}"
+          sleep 3
+          echo "✅ Pre-deployment checks passed!"
+      
+      - name: Deploy to Environment
+        run: |
+          echo "🚀 Starting deployment to ${{ github.event.inputs.environment_name }}..."
+          echo "Deploying branch: ${{ github.event.inputs.branch_name }}"
+          echo "Commit SHA: ${{ github.event.inputs.commit_sha || 'latest' }}"
+          
+          # Simulate deployment process
+          for i in {1..5}; do
+            echo "Deployment progress: $((i * 20))%"
+            sleep 3
+          done
+          
+          echo "✅ Deployment completed successfully!"
+      
+      - name: Post-deployment Verification
+        run: |
+          echo "🔍 Running post-deployment checks..."
+          sleep 5
+          echo "✅ Environment is healthy and responding!"
+      
+      - name: Deployment Summary
+        run: |
+          echo "========================================"
+          echo "✨ Deployment Summary"
+          echo "========================================"
+          echo "Environment: ${{ github.event.inputs.environment_name }}"
+          echo "Branch: ${{ github.event.inputs.branch_name }}"
+          echo "Status: SUCCESS ✅"
+          echo "Deployed by: ${{ github.event.inputs.triggered_by || 'Helios' }}"
+          echo "Time: $(date)"
+          echo "========================================"
