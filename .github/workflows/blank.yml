@@ -57,7 +57,7 @@ jobs:
         run: |
           echo "📦 Building application..."
           echo "Branch: ${{ github.event.inputs.branch_name }}"
-          sleep 10
+          sleep 1
           echo "✅ Build completed successfully!"
           
       - name: Upload Build Artifact (Simulated)
@@ -80,7 +80,7 @@ jobs:
       - name: Run Tests
         run: |
           echo "🧪 Running tests..."
-          sleep 5
+          sleep 1
           echo "✅ All tests passed!"
 
   # Job 4: Deploy to the specified environment
@@ -102,7 +102,7 @@ jobs:
         run: |
           echo "🔍 Pre-deployment validation..."
           echo "Target environment: ${{ github.event.inputs.environment_name }}"
-          sleep 3
+          sleep 1
           echo "✅ Pre-deployment checks passed!"
       
       - name: Deploy to Environment
@@ -114,7 +114,7 @@ jobs:
           # Simulate deployment process
           for i in {1..5}; do
             echo "Deployment progress: $((i * 20))%"
-            sleep 3
+            sleep 1
           done
           
           echo "✅ Deployment completed successfully!"
@@ -122,7 +122,7 @@ jobs:
       - name: Post-deployment Verification
         run: |
           echo "🔍 Running post-deployment checks..."
-          sleep 5
+          sleep 1
           echo "✅ Environment is healthy and responding!"
       
       - name: Deployment Summary
