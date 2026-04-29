@@ -110,6 +110,8 @@ jobs:
           echo "🚀 Starting deployment to ${{ github.event.inputs.environment_name }}..."
           echo "Deploying branch: ${{ github.event.inputs.branch_name }}"
           echo "Commit SHA: ${{ github.event.inputs.commit_sha || 'latest' }}"
+          echo "⏳ Waiting 30 seconds to simulate deployment latency..."
+          sleep 30
           
           # Simulate deployment process
           for i in {1..5}; do

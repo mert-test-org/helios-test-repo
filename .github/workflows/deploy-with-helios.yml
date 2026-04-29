@@ -48,3 +48,5 @@ jobs:
       - name: Deployment placeholder
         run: |
           echo "Deploying branch ${{ github.event.inputs.branch_name }} to environment ${{ github.event.inputs.environment_name }}."
+          echo "Waiting 30 seconds to simulate deployment latency."
+          sleep 30
