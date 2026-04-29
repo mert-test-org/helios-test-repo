@@ -42,6 +42,7 @@ jobs:
           echo "Triggered by: ${{ github.event.inputs.triggered_by || 'Unknown' }}"
           echo "Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           echo "========================================"
+          sleep 30
 
   # Job 2: Simulate build process
   build:
