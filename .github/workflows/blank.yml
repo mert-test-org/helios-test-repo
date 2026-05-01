@@ -88,6 +88,7 @@ jobs:
   deploy:
     needs: [build, test]
     runs-on: ubuntu-latest
+    name: Deploy to Test-Server
     # CRITICAL: This links the workflow to the GitHub Environment
     environment:
       name: ${{ github.event.inputs.environment_name }}
