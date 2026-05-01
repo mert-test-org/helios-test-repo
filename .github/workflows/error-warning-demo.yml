@@ -1,0 +1,58 @@
+name: Error and Warning Demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      fail_workflow:
+        description: "End the demo with a blocking failure"
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  annotations:
+    name: Demo warnings and errors
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Emit warning annotation
+        run: |
+          echo "::warning title=Deprecated setting,file=README.md,line=1::This warning is intentional for workflow testing."
+          echo "Warning annotation emitted."
+
+      - name: Emit recoverable error annotation
+        continue-on-error: true
+        run: |
+          echo "::error title=Recoverable validation error,file=README.md,line=2::This error is intentional and the step is allowed to fail."
+          exit 1
+
+      - name: Emit grouped warning output
+        run: |
+          echo "::group::Warning details"
+          echo "::warning title=Slow check::This warning appears inside a collapsible log group."
+          echo "The workflow continues after this warning."
+          echo "::endgroup::"
+
+      - name: Write run summary
+        run: |
+          {
+            echo "## Error and Warning Demo"
+            echo ""
+            echo "- Warning annotation: emitted"
+            echo "- Recoverable error step: failed with continue-on-error"
+            echo "- Blocking failure enabled: ${{ inputs.fail_workflow }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Emit blocking error
+        if: ${{ inputs.fail_workflow }}
+        run: |
+          echo "::error title=Blocking demo failure::This final error intentionally fails the workflow."
+          exit 1
+
+      - name: Complete without blocking failure
+        if: ${{ !inputs.fail_workflow }}
+        run: |
+          echo "Blocking failure disabled. Demo completed after warnings and recoverable errors."
